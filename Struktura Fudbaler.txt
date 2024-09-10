@@ -1,0 +1,150 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+struct Fudbaler {
+	char* ime = nullptr;
+	char* prezime = nullptr;
+	char drzava[40] = "";
+	const char* fudbalskiKlub;
+	int brojutakmica = 0; // označava broj redova u dinamičkoj matrici
+	int brojKorisnika = 0; // označava broj kolonu u dinamičkoj matrici
+	int* golova = nullptr;;
+	int** ocjene = nullptr; // matrica dimenzija (brojFilmova × brojKorisnika)
+	void unos() // funkcija clanica za alokaciju i unos vrijednosti
+	{
+		char temp[250]{};
+		cout << "unesi ime" << endl;
+		cin.getline(temp, 200);
+		ime = new char[strlen(temp) + 1];
+		strcpy_s(ime, strlen(temp) + 1, temp);
+
+		cout << "unesi prezime" << endl;
+		cin.getline(temp, 200);
+		prezime = new char[strlen(temp) + 1];
+		strcpy_s(prezime, strlen(temp) + 1, temp);
+
+		cout << "unesi dzravu" << endl;
+		cin.getline(drzava, 40);
+
+		cout << "unesi klub fudbalera" << endl;
+		cin.getline(temp, 200);
+		char* tempptr = new char[strlen(temp) + 1];
+		strcpy_s(tempptr, strlen(temp) +1, temp);
+		fudbalskiKlub = tempptr;
+		do
+		{
+			cout << "unesi broj utakmica" << endl;
+			cin >> brojutakmica;
+		} while (brojutakmica<1);
+		do
+		{
+			cout << "unesi broj korisnika" << endl;
+			cin >> brojKorisnika;
+		} while (brojKorisnika < 1);
+
+		golova = new int[brojutakmica];
+
+
+		ocjene = new int* [brojutakmica];
+		
+		cout << "unesi golove po utakmici" << endl;
+		for (int i = 0; i < brojutakmica; i++)
+		{
+			cin >> *(golova + i);
+		}
+		
+		
+		
+		for (int i = 0; i < brojutakmica; i++)
+		{
+			*(ocjene + i) = new int[brojKorisnika];
+		}
+		cout << "unesi elemente matrice" << endl;
+		for (int i = 0; i < brojutakmica; i++)
+		{
+			for (int j = 0; j < brojKorisnika; j++)
+			{
+				cin >> *(*(ocjene + i) + j);
+			}
+		}
+
+	}
+	float* getAveragesByGame()
+	{
+		float* prosjek = new float[brojutakmica] {};
+		for (int j = 0; j < brojutakmica; j++)
+		{
+			for (int i = 0; i < brojKorisnika; i++)
+			{
+				*(prosjek + j) += *(*(ocjene + j) + i);
+			}
+		
+			*(prosjek + j) /= brojKorisnika;
+		}
+		return prosjek;
+    }
+	
+	void ispis()
+	{
+		cout << "ime i prezime: " << ime << " " << prezime << endl;
+		cout << "drzava: " << drzava << endl;
+		cout << "fudbalski klub: " << fudbalskiKlub << endl;
+		cout << "broj utakmica: " << brojutakmica << endl;
+		cout << "broj korisnika " << brojKorisnika << endl;
+		cout << "broj golova:" << endl;
+		for (int i = 0; i < brojutakmica; i++)
+		{
+			cout << *(golova + i) << " ";
+		}
+		cout << endl;
+		
+		cout << "matrica: " << endl;
+		for (int i = 0; i < brojutakmica; i++)
+		{
+			for (int j = 0; j < brojKorisnika; j++)
+			{
+				cout << *(*(ocjene + i) + j);
+			}
+			cout << endl;
+		}
+	}
+	void dealokacije()
+	{
+		delete[]ime;
+		delete[]prezime;
+		ime = prezime = nullptr;
+		for (int i = 0; i < brojutakmica; i++)
+		{
+			delete[] * (ocjene + i);
+			*(ocjene + i) = nullptr;
+		}
+		delete[]ocjene;
+		ocjene = nullptr;
+		delete[]golova;
+		golova = nullptr;
+	}
+
+};
+
+
+int main()
+{
+	Fudbaler* f = new Fudbaler;
+	f->unos();
+	f->ispis();
+	cout << endl;
+	int indeks = 0;
+	float* prosjeci = f->getAveragesByGame();
+	for (int i = 0; i < f->brojutakmica; i++)
+	{
+		cout << *(prosjeci + i) << " ";
+		if (*(prosjeci + i) > *(prosjeci + indeks))
+			indeks = i;
+	}
+	cout << endl;
+	cout << "najbolje ocjnejjna bila je pod indeksom" << indeks << endl;
+	cout << "postignuto je" << *(f->golova + indeks) << endl;
+
+	return 0;
+
+}
