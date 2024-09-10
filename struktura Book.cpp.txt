@@ -1,0 +1,125 @@
+#include <iostream>
+
+using namespace std;
+
+
+int countWords(const char* str) {
+	bool inside = false;
+	int count = 0;
+
+	for (int i = 0; i < strlen(str); i++) {
+		if (inside) {
+			if (str[i] == ' ' || str[i] == '.' || str[i] == ',') inside = false;
+		}
+		else {
+			if (str[i] != ' ' && str[i] != '.' && str[i] != ',') {
+				inside = true;
+				count++;
+			}
+		}
+	}
+	return count;
+}
+
+struct Book {
+	char* imeKnjige = nullptr;
+	char* imeAutora = nullptr;
+	int brojOcjena = 0;
+	int* ocjene = nullptr;
+
+	void unos() {
+		char temp[200];
+		
+		cout << "Unesi ime knjige: ";
+		cin.getline(temp, 200);
+		imeKnjige = new char[strlen(temp) + 1];
+		strcpy_s(imeKnjige, strlen(temp) + 1, temp);
+		
+		
+		cout << "Unesi ime autora: ";
+		cin.getline(temp, 200);
+		imeAutora = new char[strlen(temp) + 1];
+		strcpy_s(imeAutora, strlen(temp) + 1, temp);
+
+		do {
+			cout << "Unesi broj ocjena: ";
+			cin >> brojOcjena;
+			cin.clear();
+			cin.ignore(INT_MAX, '\n');
+		} while (brojOcjena < 1);
+
+
+		ocjene = new int[brojOcjena];
+
+		cout << "Unesi ocjene: " << endl;
+		for (int i = 0; i < brojOcjena; i++) {
+			cin >> *(ocjene + i);
+		}
+		cout << endl;
+		cin.clear();
+		cin.ignore(INT_MAX, '\n');
+	}
+
+	float getAverageByRating() {
+		float avg = 0.0f;
+		for (int i = 0; i < brojOcjena; i++) avg += *(ocjene + i);
+		avg /= brojOcjena;
+
+		return avg;
+	}
+
+	void ispis() {
+		cout << "=================================" << endl;
+		cout << "Ime knjige: " << imeKnjige << endl;
+		cout << "Ime autora: " << imeAutora << endl;
+
+		cout << "Ocjene: ";
+		for (int i = 0; i < brojOcjena; i++) cout << ocjene[i] << " ";
+		cout << endl;
+
+		cout << "Prosjek ocjena: " << getAverageByRating() << endl;
+	}
+
+	void dealokacija() {
+		delete[] imeAutora;
+		delete[] imeKnjige;
+		delete[] ocjene;
+		imeAutora = nullptr;
+		imeKnjige = nullptr;
+		ocjene = nullptr;
+	}
+};
+
+
+int main()
+{
+	int brojunosa;
+	do {
+		cout << "Unesi broj knjiga: ";
+		cin >> brojunosa;
+		cin.clear();
+		cin.ignore(INT_MAX, '\n');
+	} while (brojunosa < 1);
+	cout << endl;
+
+	Book* niz = new Book[brojunosa];
+
+	for (int i = 0; i < brojunosa; i++) (niz + i)->unos();
+
+	int indeks = 0;
+	for (int i = 0; i < brojunosa; i++) {
+		(niz + i)->ispis();
+		cout << "Ime knjige ima " << countWords((niz + i)->imeKnjige) << " rijeci" << endl;
+
+		if (i != 0 && (niz + i)->getAverageByRating() > (niz + indeks)->getAverageByRating()) indeks = i;
+	}
+
+	cout << endl << endl << "Najveci prosjek ocjena ima knjiga sa indeksom " << indeks << endl;
+
+
+	for (int i = 0; i < brojunosa; i++) (niz + i)->dealokacija();
+	delete[] niz;
+	niz = nullptr;
+
+	return 0;
+}
